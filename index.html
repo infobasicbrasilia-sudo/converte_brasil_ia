@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brasil IA - Conversor MP4 para MP3</title>
+    <title>Brasil IA - Conversor Turbo</title>
     <style>
         body { background-color: #f0f2f5; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
@@ -14,9 +14,8 @@
         .btn-convert { background: #003399; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
         .btn-convert:disabled { background: #ccc; }
         .status-msg { margin-top: 1rem; font-weight: bold; display: none; padding: 10px; border-radius: 5px; }
-        #downloadArea { margin-top: 1.5rem; display: none; padding: 1rem; background: #d4edda; border-radius: 8px; }
-        .download-link { display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
-        .counter-container { margin-top: 20px; }
+        #downloadArea { margin-top: 1.5rem; display: none; padding: 1rem; background: #d4edda; border-radius: 8px; text-align: center; }
+        .download-link { display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -24,18 +23,18 @@
 <div class="card">
     <img src="BSBiA.png" alt="Logo" class="logo-brasil">
     <h1>Brasil IA</h1>
-    <p>Conversor MP4 para MP3</p>
+    <p>Conversor MP4 para MP3 (Sem Limites)</p>
 
     <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
         <span id="fileName">Clique para selecionar o vídeo</span>
         <input type="file" id="fileInput" accept="video/mp4">
     </div>
 
-    <button id="convertBtn" class="disabled btn-convert" disabled>INICIAR CONVERSÃO</button>
+    <button id="convertBtn" class="btn-convert" disabled>INICIAR CONVERSÃO</button>
     <div id="status" class="status-msg"></div>
 
     <div id="downloadArea">
-        <p>✅ Conversão concluída!</p>
+        <p style="color: #155724; margin: 0;">✅ Áudio pronto!</p>
         <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MP3</a>
     </div>
     
@@ -44,13 +43,16 @@
     </div>
 </div>
 
-<div class="counter-container">
+<div style="margin-top: 20px;">
     <a href='https://www.counter12.com'>
-        <img src='https://www.counter12.com/img-8xW6aD0D8x90Z669-3.gif' border='0' alt='contador de visitas'>
+        <img src='https://www.counter12.com/img-8xW6aD0D8x90Z669-3.gif' border='0' alt='contador'>
     </a>
 </div>
 
 <script>
+    // CONFIGURAÇÃO DIRETA
+    const API_KEY = "56522db21ee4a29c1bf1cefeaf79ab44"; 
+
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
     const convertBtn = document.getElementById('convertBtn');
@@ -60,8 +62,11 @@
 
     fileInput.onchange = function() {
         if (this.files[0]) {
-            fileName.innerText = "Arquivo: " + this.files[0].name;
+            const sizeMB = (this.files[0].size / (1024 * 1024)).toFixed(2);
+            fileName.innerText = `Arquivo: ${this.files[0].name} (${sizeMB}MB)`;
             convertBtn.disabled = false;
+            status.style.display = 'none';
+            downloadArea.style.display = 'none';
         }
     };
 
@@ -73,7 +78,7 @@
     });
 
     async function checkStatus(id) {
-        status.innerText = "⏳ IA Processando... Aguarde.";
+        status.innerText = "⏳ IA Convertendo... Aguarde.";
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`https://api.convertio.co/convert/${id}/status`);
@@ -95,31 +100,30 @@
 
         convertBtn.disabled = true;
         status.style.display = 'block';
-        status.style.backgroundColor = "transparent";
         status.style.color = "#003399";
-        status.innerText = "🚀 Enviando...";
+        status.innerText = "🚀 Enviando direto para IA...";
 
         try {
             const base64 = await toBase64(file);
-            const res = await fetch('/api/convert', {
+            
+            // CHAMADA DIRETA PARA A CONVERTIO (IGNORA LIMITE VERCEL)
+            const res = await fetch('https://api.convertio.co/convert', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ file: base64, filename: file.name })
+                body: JSON.stringify({
+                    apikey: API_KEY,
+                    input: 'base64',
+                    file: base64,
+                    filename: file.name,
+                    outputformat: 'mp3'
+                })
             });
-
-            // Proteção contra o erro "Token R" (Texto em vez de JSON)
-            if (res.status === 413) throw new Error("Vídeo muito grande (Máx 4.5MB)");
-            
-            const contentType = res.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("O servidor respondeu de forma inválida.");
-            }
 
             const data = await res.json();
             if (data.status === 'ok') {
                 checkStatus(data.data.id);
             } else {
-                throw new Error(data.error || "Erro na conversão");
+                throw new Error(data.error || "Erro na Convertio");
             }
         } catch (e) {
             status.style.backgroundColor = "#f8d7da";
