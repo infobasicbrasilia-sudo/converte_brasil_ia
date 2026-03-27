@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brasil IA - Conversor Turbo</title>
+    <title>Brasil IA - Conversor sem Limites</title>
     <style>
-        body { background-color: #f0f2f5; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
-        .logo-brasil { width: 80px; margin-bottom: 1rem; }
-        h1 { color: #003399; margin: 0; }
-        .drop-zone { border: 2px dashed #003399; padding: 2rem; border-radius: 10px; cursor: pointer; margin: 1.5rem 0; background: #f8f9fa; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; border-top: 5px solid #003399; }
+        .logo-brasil { width: 90px; margin-bottom: 1rem; }
+        h1 { color: #003399; margin: 0; font-size: 1.8rem; }
+        .drop-zone { border: 2px dashed #003399; padding: 2rem; border-radius: 12px; cursor: pointer; margin: 1.5rem 0; background: #f8f9fa; transition: 0.3s; }
+        .drop-zone:hover { background: #eef2ff; }
         #fileInput { display: none; }
-        .btn-convert { background: #003399; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
-        .btn-convert:disabled { background: #ccc; }
-        .status-msg { margin-top: 1rem; font-weight: bold; display: none; padding: 10px; border-radius: 5px; }
-        #downloadArea { margin-top: 1.5rem; display: none; padding: 1rem; background: #d4edda; border-radius: 8px; text-align: center; }
-        .download-link { display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+        .btn-convert { background: #003399; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
+        .btn-convert:disabled { background: #ccc; cursor: not-allowed; }
+        .status-msg { margin-top: 1.2rem; font-weight: bold; display: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; }
+        #downloadArea { margin-top: 1.5rem; display: none; padding: 1.2rem; background: #d4edda; border-radius: 10px; border: 1px solid #c3e6cb; }
+        .download-link { display: inline-block; padding: 12px 25px; background: #28a745; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <img src="BSBiA.png" alt="Logo" class="logo-brasil">
+    <img src="BSBiA.png" alt="Logo Brasil IA" class="logo-brasil">
     <h1>Brasil IA</h1>
-    <p>Conversor MP4 para MP3 (Sem Limites)</p>
+    <p>Conversor de Vídeo para MP3</p>
 
     <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-        <span id="fileName">Clique para selecionar o vídeo</span>
+        <b id="fileName">Selecionar Vídeo (MP4)</b>
         <input type="file" id="fileInput" accept="video/mp4">
     </div>
 
@@ -34,24 +35,24 @@
     <div id="status" class="status-msg"></div>
 
     <div id="downloadArea">
-        <p style="color: #155724; margin: 0;">✅ Áudio pronto!</p>
-        <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MP3</a>
+        <p style="color: #155724; margin: 0; font-weight: bold;">✅ Conversão Concluída!</p>
+        <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MEU MP3</a>
     </div>
     
-    <div style="margin-top: 20px; font-size: 0.8rem; color: #999;">
-        Devs: Alunos de Informática Básica - Joner 2026
+    <div style="margin-top: 25px; font-size: 0.75rem; color: #aaa;">
+        <b>Instrutor Joner & Alunos 2026</b>
     </div>
 </div>
 
-<div style="margin-top: 20px;">
+<div style="margin-top: 25px;">
     <a href='https://www.counter12.com'>
-        <img src='https://www.counter12.com/img-8xW6aD0D8x90Z669-3.gif' border='0' alt='contador'>
+        <img src='https://www.counter12.com/img-8xW6aD0D8x90Z669-3.gif' border='0' alt='contador de visitas'>
     </a>
 </div>
 
 <script>
-    // CONFIGURAÇÃO DIRETA
-    const API_KEY = "56522db21ee4a29c1bf1cefeaf79ab44"; 
+    // CHAVE DE API DIRETA (IGNORA O LIMITE DA VERCEL)
+    const API_KEY = "56522db21ee4a29c1bf1cefeaf79ab44";
 
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
@@ -62,8 +63,8 @@
 
     fileInput.onchange = function() {
         if (this.files[0]) {
-            const sizeMB = (this.files[0].size / (1024 * 1024)).toFixed(2);
-            fileName.innerText = `Arquivo: ${this.files[0].name} (${sizeMB}MB)`;
+            const size = (this.files[0].size / (1024 * 1024)).toFixed(2);
+            fileName.innerText = `${this.files[0].name} (${size}MB)`;
             convertBtn.disabled = false;
             status.style.display = 'none';
             downloadArea.style.display = 'none';
@@ -78,7 +79,7 @@
     });
 
     async function checkStatus(id) {
-        status.innerText = "⏳ IA Convertendo... Aguarde.";
+        status.innerText = "⏳ IA Processando... Só mais um pouco!";
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`https://api.convertio.co/convert/${id}/status`);
@@ -90,7 +91,7 @@
                     mp3Link.href = s.data.output.url;
                     convertBtn.disabled = false;
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Erro no status:", e); }
         }, 4000);
     }
 
@@ -100,13 +101,14 @@
 
         convertBtn.disabled = true;
         status.style.display = 'block';
+        status.style.backgroundColor = "#eef2ff";
         status.style.color = "#003399";
-        status.innerText = "🚀 Enviando direto para IA...";
+        status.innerText = "🚀 Enviando para o Brasil IA...";
 
         try {
             const base64 = await toBase64(file);
             
-            // CHAMADA DIRETA PARA A CONVERTIO (IGNORA LIMITE VERCEL)
+            // CONEXÃO DIRETA COM A CONVERTIO (PULA A VERCEL)
             const res = await fetch('https://api.convertio.co/convert', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -123,7 +125,7 @@
             if (data.status === 'ok') {
                 checkStatus(data.data.id);
             } else {
-                throw new Error(data.error || "Erro na Convertio");
+                throw new Error(data.error || "Erro na plataforma de IA");
             }
         } catch (e) {
             status.style.backgroundColor = "#f8d7da";
