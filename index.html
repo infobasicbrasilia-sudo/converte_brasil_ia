@@ -4,7 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brasil IA - Conversor MP4 para MP3</title>
-    <link rel="stylesheet" href="css/style.css?v=6.0">
+    
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo-brasil {
+            width: 80px;
+            margin-bottom: 1rem;
+        }
+        h1 { color: #003399; margin: 0; }
+        p { color: #666; margin-bottom: 1.5rem; }
+        
+        .drop-zone {
+            border: 2px dashed #003399;
+            padding: 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: 0.3s;
+        }
+        .drop-zone:hover { background: #eef2ff; }
+        #fileInput { display: none; }
+        
+        .btn-convert {
+            background: #003399;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn-convert:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .status-msg {
+            margin-top: 1rem;
+            font-weight: bold;
+            display: none;
+        }
+        #downloadArea {
+            margin-top: 1.5rem;
+            display: none;
+            padding: 1rem;
+            background: #d4edda;
+            border-radius: 8px;
+        }
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #999;
+        }
+    </style>
 </head>
 <body>
 
@@ -54,15 +132,16 @@
         const file = fileInput.files[0];
         if (!file) return;
 
-        // Validação de segurança para o plano Free do Vercel
         if (file.size > 4.5 * 1024 * 1024) {
             status.style.display = 'block';
+            status.style.color = 'red';
             status.innerText = "❌ Arquivo muito grande! Máximo de 4.5MB permitido.";
             return;
         }
 
         convertBtn.disabled = true;
         status.style.display = 'block';
+        status.style.color = '#003399';
         status.innerText = "🚀 Enviando para o Brasil IA...";
 
         try {
