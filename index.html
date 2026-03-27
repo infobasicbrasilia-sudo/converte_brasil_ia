@@ -92,7 +92,7 @@
     <p>Conversor de Vídeo para Áudio (MP3)</p>
 
     <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-        <span id="fileName">Selecione um vídeo MP4 (Máx 4.5MB)</span>
+        <span id="fileName">Selecione um vídeo MP4</span>
         <input type="file" id="fileInput" accept="video/mp4">
     </div>
 
@@ -132,12 +132,18 @@
         const file = fileInput.files[0];
         if (!file) return;
 
+        /* TRAVA COMENTADA: 
+           Agora o sistema tentará enviar vídeos longos.
+           Se o Vercel barrar, o erro aparecerá no 'catch' abaixo.
+        */
+        /*
         if (file.size > 4.5 * 1024 * 1024) {
             status.style.display = 'block';
             status.style.color = 'red';
             status.innerText = "❌ Arquivo muito grande! Máximo de 4.5MB permitido.";
             return;
         }
+        */
 
         convertBtn.disabled = true;
         status.style.display = 'block';
@@ -152,7 +158,7 @@
                 body: JSON.stringify({ file: base64, filename: file.name })
             });
 
-            if (!response.ok) throw new Error("Erro no servidor. Tente um arquivo menor.");
+            if (!response.ok) throw new Error("O servidor não suportou o tamanho do vídeo. Tente um arquivo menor.");
 
             const data = await response.json();
             if (data.status !== 'ok') throw new Error(data.error || "Erro na conversão");
