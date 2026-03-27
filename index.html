@@ -5,104 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brasil IA - Conversor MP4 para MP3</title>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-            width: 95%;
-            max-width: 500px;
-            text-align: center;
-            border-top: 6px solid #0056b3;
-        }
-
-        .logo-brasil {
-            width: 150px;
-            margin-bottom: 20px;
-            filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.1));
-        }
-
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); width: 95%; max-width: 500px; text-align: center; border-top: 6px solid #0056b3; }
+        .logo-brasil { width: 150px; margin-bottom: 20px; }
         h1 { color: #0056b3; margin: 5px 0; font-size: 24px; }
-        p { color: #555; font-size: 15px; margin-bottom: 30px; }
-
-        .drop-zone {
-            border: 2px dashed #0056b3;
-            padding: 40px 20px;
-            border-radius: 12px;
-            background: #f8fbff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .drop-zone:hover { background: #eef5ff; border-color: #003d7a; }
-
+        .drop-zone { border: 2px dashed #0056b3; padding: 40px 20px; border-radius: 12px; background: #f8fbff; cursor: pointer; margin-top: 20px; }
         #fileInput { display: none; }
-
-        .status-msg {
-            margin-top: 25px;
-            font-weight: bold;
-            color: #0056b3;
-            display: none;
-            padding: 15px;
-            background: #e7f0ff;
-            border-radius: 8px;
-            border-left: 5px solid #0056b3;
-        }
-
-        .btn-convert {
-            display: block;
-            width: 100%;
-            padding: 18px;
-            margin-top: 25px;
-            background: #0056b3;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .btn-convert:hover:not(:disabled) { background: #003d7a; transform: translateY(-2px); }
+        .status-msg { margin-top: 25px; font-weight: bold; color: #0056b3; display: none; padding: 15px; background: #e7f0ff; border-radius: 8px; border-left: 5px solid #0056b3; word-break: break-all; }
+        .btn-convert { display: block; width: 100%; padding: 18px; margin-top: 25px; background: #0056b3; color: white; border: none; border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer; }
         .btn-convert:disabled { background: #bcc6d1; cursor: not-allowed; }
-
-        #downloadArea {
-            margin-top: 25px;
-            display: none;
-            padding: 20px;
-            background-color: #d4edda;
-            border-radius: 12px;
-            border: 1px solid #c3e6cb;
-        }
-
-        .download-link {
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 12px;
-            background: #28a745;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 6px;
-            transition: 0.2s;
-        }
-        
-        .download-link:hover { background: #218838; }
-
+        #downloadArea { margin-top: 25px; display: none; padding: 20px; background-color: #d4edda; border-radius: 12px; }
+        .download-link { text-decoration: none; font-weight: bold; display: inline-block; margin-top: 12px; background: #28a745; color: white; padding: 12px 25px; border-radius: 6px; }
         .footer { font-size: 11px; color: #888; margin-top: 30px; }
-        .counter-area { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -110,33 +24,26 @@
 <div class="card">
     <img src="BSBiA.png" alt="BSBiA Logo" class="logo-brasil">
     <h1>Brasil IA</h1>
-    <p>Tecnologia para converter MP4 em MP3</p>
+    <p>Conversor de Vídeo para Áudio (MP3)</p>
 
     <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-        <span id="fileName">Selecione o arquivo de vídeo (.mp4)</span>
+        <span id="fileName">Selecione um vídeo MP4</span>
         <input type="file" id="fileInput" accept="video/mp4">
     </div>
 
     <button id="convertBtn" class="btn-convert" disabled>INICIAR CONVERSÃO</button>
-
-    <div id="status" class="status-msg">Iniciando...</div>
+    <div id="status" class="status-msg"></div>
 
     <div id="downloadArea">
-        <p style="color: #155724; margin: 0;">✅ Áudio extraído com sucesso!</p>
-        <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MEU MP3</a>
+        <p style="color: #155724;">✅ Conversão concluída!</p>
+        <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MP3</a>
     </div>
-    
-    <div class="footer">
-       Devs: Alunos de Informática Básica do Instrutor Joner 2026<br>
-       Tecnologia de Segurança Backend Ativa
-    </div>
+
+    <div class="footer">Devs: Alunos de Informática Básica do Instrutor Joner 2026</div>
 </div>
 
-<div class="counter-area" align="center">
-    <a href='https://www.counter12.com'>
-        <img src='https://www.counter12.com/img-8xW6aD0D8x90Z669-3.gif' border='0' alt='contador free'>
-    </a>
-    <script type='text/javascript' src='https://www.counter12.com/ad.js?id=8xW6aD0D8x90Z669'></script>
+<div align="center" style="margin-top:20px;">
+    <a href='https://www.counter12.com'><img src='https://www.counter12.com/img-8xW6aD0D8x90Z669-3.gif' border='0'></a>
 </div>
 
 <script>
@@ -149,10 +56,10 @@
 
     fileInput.addEventListener('change', function() {
         if (this.files[0]) {
-            fileName.innerText = "Selecionado: " + this.files[0].name;
+            fileName.innerText = "Arquivo: " + this.files[0].name;
             convertBtn.disabled = false;
-            downloadArea.style.display = 'none';
             status.style.display = 'none';
+            downloadArea.style.display = 'none';
         }
     });
 
@@ -160,86 +67,58 @@
         const file = fileInput.files[0];
         if (!file) return;
 
-        // Limite de segurança: 20MB
-        if (file.size > 20 * 1024 * 1024) {
-            alert("Arquivo muito grande! Limite de 20MB.");
-            return;
-        }
-
         convertBtn.disabled = true;
         status.style.display = 'block';
-        status.innerText = "🚀 Enviando para o Servidor Brasil IA...";
+        status.innerText = "🚀 Enviando... (Arquivos grandes demoram mais)";
 
         try {
-            const base64File = await toBase64(file);
-
+            const base64 = await toBase64(file);
             const response = await fetch('/api/convert', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    file: base64File,
-                    filename: file.name
-                })
+                body: JSON.stringify({ file: base64, filename: file.name })
             });
 
+            // Se o Vercel der erro 504 ou 500 (O tal erro do "R")
             if (!response.ok) {
-                const errorData = await response.text();
-                throw new Error("Erro no servidor: " + response.status);
+                const text = await response.text();
+                if (text.includes("Payload Too Large")) throw new Error("Vídeo muito grande para o plano gratuito.");
+                throw new Error("O servidor demorou muito ou falhou.");
             }
 
             const data = await response.json();
-            if (data.status !== 'ok') throw new Error(data.error || "Erro na conversão.");
+            if (data.status !== 'ok') throw new Error(data.error || "Erro na conversão");
 
-            const id = data.data.id;
-            checkStatus(id);
-
-        } catch (error) {
-            console.error(error);
-            status.innerText = "❌ " + error.message;
-            status.style.background = "#ffebee";
-            status.style.color = "#c62828";
+            checkStatus(data.data.id);
+        } catch (e) {
+            status.innerText = "❌ " + e.message;
             convertBtn.disabled = false;
         }
     });
 
     async function checkStatus(id) {
-        status.innerText = "⏳ IA Processando o áudio... Aguarde.";
-        
+        status.innerText = "⏳ IA Processando... Não feche a página.";
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`https://api.convertio.co/convert/${id}/status`);
-                const statusData = await res.json();
-
-                if (statusData.data.step === 'finish') {
+                const s = await res.json();
+                if (s.data.step === 'finish') {
                     clearInterval(interval);
-                    showDownload(statusData.data.output.url);
-                } else if (statusData.status !== 'ok' || statusData.data.step === 'error') {
-                    clearInterval(interval);
-                    throw new Error("Erro no processamento da Convertio.");
+                    status.style.display = 'none';
+                    downloadArea.style.display = 'block';
+                    mp3Link.href = s.data.output.url;
+                    convertBtn.disabled = false;
                 }
-            } catch (e) {
-                clearInterval(interval);
-                status.innerText = "❌ Erro ao checar status.";
-                convertBtn.disabled = false;
-            }
-        }, 4000); 
+            } catch (e) { /* continua tentando */ }
+        }, 4000);
     }
 
-    function showDownload(url) {
-        status.style.display = 'none';
-        downloadArea.style.display = 'block';
-        mp3Link.href = url;
-        convertBtn.disabled = false;
-        convertBtn.innerText = "CONVERTER OUTRO VÍDEO";
-    }
-
-    const toBase64 = file => new Promise((resolve, reject) => {
+    const toBase64 = file => new Promise((r, j) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
+        reader.onload = () => r(reader.result.split(',')[1]);
+        reader.onerror = j;
     });
 </script>
-
 </body>
 </html>

@@ -1,9 +1,11 @@
 export const config = {
     api: {
         bodyParser: {
-            sizeLimit: '20mb', // Permite vídeos de até 20MB
+            sizeLimit: '20mb', // Permite arquivos de até 20MB
         },
     },
+    // Força o Vercel a usar mais CPU para processar o Base64 rápido
+    memory: 1024, 
 };
 
 export default async function handler(req, res) {
@@ -14,8 +16,7 @@ export default async function handler(req, res) {
     const API_KEY = process.env.CONVERTIO_KEY;
 
     if (!API_KEY) {
-        console.error("ERRO: CONVERTIO_KEY não configurada no Vercel.");
-        return res.status(500).json({ error: "Chave de API ausente no servidor." });
+        return res.status(500).json({ error: "Chave de API (CONVERTIO_KEY) não encontrada no Vercel." });
     }
 
     try {
@@ -31,17 +32,23 @@ export default async function handler(req, res) {
             })
         });
 
+        // Verificamos se a Convertio respondeu algo que não é JSON
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            const textError = await response.text();
+            return res.status(500).json({ error: "Erro na Convertio: " + textError });
+        }
+
         const data = await response.json();
         
-        // Se a Convertio retornar erro (ex: chave inválida ou limite excedido)
         if (data.status !== 'ok') {
-            console.error("Erro Convertio:", data.error);
             return res.status(400).json(data);
         }
 
         return res.status(200).json(data);
+
     } catch (error) {
-        console.error("Erro interno:", error.message);
-        return res.status(500).json({ error: 'Erro interno no servidor' });
+        console.error("Erro no Handler:", error.message);
+        return res.status(500).json({ error: 'Erro interno: ' + error.message });
     }
 }
