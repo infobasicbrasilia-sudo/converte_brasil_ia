@@ -1,0 +1,102 @@
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: #f0f2f5; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    margin: 0; 
+}
+
+.card { 
+    background: white; 
+    padding: 40px; 
+    border-radius: 20px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
+    width: 95%; 
+    max-width: 500px; 
+    text-align: center; 
+    border-top: 6px solid #0056b3; 
+}
+
+.logo-brasil { 
+    width: 150px; 
+    margin-bottom: 20px; 
+}
+
+h1 { 
+    color: #0056b3; 
+    margin: 5px 0; 
+    font-size: 24px; 
+}
+
+.drop-zone { 
+    border: 2px dashed #0056b3; 
+    padding: 40px 20px; 
+    border-radius: 12px; 
+    background: #f8fbff; 
+    cursor: pointer; 
+    margin-top: 20px; 
+}
+
+#fileInput { 
+    display: none; 
+}
+
+.status-msg { 
+    margin-top: 25px; 
+    font-weight: bold; 
+    color: #0056b3; 
+    display: none; 
+    padding: 15px; 
+    background: #e7f0ff; 
+    border-radius: 8px; 
+    border-left: 5px solid #0056b3; 
+    word-break: break-word; 
+}
+
+.btn-convert { 
+    display: block; 
+    width: 100%; 
+    padding: 18px; 
+    margin-top: 25px; 
+    background: #0056b3; 
+    color: white; 
+    border: none; 
+    border-radius: 10px; 
+    font-size: 17px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: 0.3s; 
+}
+
+.btn-convert:disabled { 
+    background: #bcc6d1; 
+    cursor: not-allowed; 
+}
+
+#downloadArea { 
+    margin-top: 25px; 
+    display: none; 
+    padding: 20px; 
+    background-color: #d4edda; 
+    border-radius: 12px; 
+}
+
+.download-link { 
+    text-decoration: none; 
+    font-weight: bold; 
+    display: inline-block; 
+    margin-top: 12px; 
+    background: #28a745; 
+    color: white; 
+    padding: 12px 25px; 
+    border-radius: 6px; 
+}
+
+.footer { 
+    font-size: 11px; 
+    color: #888; 
+    margin-top: 30px; 
+}
