@@ -28,7 +28,7 @@
             width: 80px;
             margin-bottom: 1rem;
         }
-        h1 { color: #003399; margin: 0; }
+        h1 { color: #003399; margin: 0; font-size: 1.8rem; }
         p { color: #666; margin-bottom: 1.5rem; }
         
         .drop-zone {
@@ -38,8 +38,9 @@
             cursor: pointer;
             margin-bottom: 1rem;
             transition: 0.3s;
+            background: #f8f9fa;
         }
-        .drop-zone:hover { background: #eef2ff; }
+        .drop-zone:hover { background: #eef2ff; border-color: #00cc00; }
         #fileInput { display: none; }
         
         .btn-convert {
@@ -53,18 +54,22 @@
             width: 100%;
             transition: 0.3s;
         }
+        .btn-convert:hover { background: #002673; }
         .btn-convert:disabled { background: #ccc; cursor: not-allowed; }
         
         .status-msg {
             margin-top: 1rem;
             font-weight: bold;
             display: none;
+            padding: 10px;
+            border-radius: 5px;
         }
         #downloadArea {
             margin-top: 1.5rem;
             display: none;
             padding: 1rem;
             background: #d4edda;
+            border: 1px solid #c3e6cb;
             border-radius: 8px;
         }
         .download-link {
@@ -92,7 +97,7 @@
     <p>Conversor de Vídeo para Áudio (MP3)</p>
 
     <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-        <span id="fileName">Selecione um vídeo MP4</span>
+        <span id="fileName">Clique para selecionar um vídeo MP4</span>
         <input type="file" id="fileInput" accept="video/mp4">
     </div>
 
@@ -100,7 +105,7 @@
     <div id="status" class="status-msg"></div>
 
     <div id="downloadArea">
-        <p style="color: #155724;">✅ Conversão concluída!</p>
+        <p style="color: #155724; margin: 0;">✅ Conversão concluída!</p>
         <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MP3</a>
     </div>
 
@@ -121,7 +126,8 @@
 
     fileInput.addEventListener('change', function() {
         if (this.files[0]) {
-            fileName.innerText = "Arquivo: " + this.files[0].name;
+            const sizeMB = (this.files[0].size / (1024 * 1024)).toFixed(2);
+            fileName.innerText = `Arquivo: ${this.files[0].name} (${sizeMB}MB)`;
             convertBtn.disabled = false;
             status.style.display = 'none';
             downloadArea.style.display = 'none';
@@ -132,23 +138,11 @@
         const file = fileInput.files[0];
         if (!file) return;
 
-        /* TRAVA COMENTADA: 
-           Agora o sistema tentará enviar vídeos longos.
-           Se o Vercel barrar, o erro aparecerá no 'catch' abaixo.
-        */
-        /*
-        if (file.size > 4.5 * 1024 * 1024) {
-            status.style.display = 'block';
-            status.style.color = 'red';
-            status.innerText = "❌ Arquivo muito grande! Máximo de 4.5MB permitido.";
-            return;
-        }
-        */
-
         convertBtn.disabled = true;
         status.style.display = 'block';
         status.style.color = '#003399';
-        status.innerText = "🚀 Enviando para o Brasil IA...";
+        status.style.backgroundColor = '#eef2ff';
+        status.innerText = "🚀 Enviando para o Brasil IA... (Aguarde)";
 
         try {
             const base64 = await toBase64(file);
@@ -158,20 +152,24 @@
                 body: JSON.stringify({ file: base64, filename: file.name })
             });
 
-            if (!response.ok) throw new Error("O servidor não suportou o tamanho do vídeo. Tente um arquivo menor.");
-
             const data = await response.json();
-            if (data.status !== 'ok') throw new Error(data.error || "Erro na conversão");
+
+            if (!response.ok) {
+                // Se for erro 413 do Vercel ou erro da API
+                throw new Error(data.error || "O servidor não suportou o tamanho do arquivo.");
+            }
 
             checkStatus(data.data.id);
         } catch (e) {
+            status.style.color = '#721c24';
+            status.style.backgroundColor = '#f8d7da';
             status.innerText = "❌ " + e.message;
             convertBtn.disabled = false;
         }
     });
 
     async function checkStatus(id) {
-        status.innerText = "⏳ Processando áudio... Aguarde.";
+        status.innerText = "⏳ IA Processando o áudio... Quase lá!";
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`https://api.convertio.co/convert/${id}/status`);
@@ -182,8 +180,15 @@
                     downloadArea.style.display = 'block';
                     mp3Link.href = s.data.output.url;
                     convertBtn.disabled = false;
+                } else if (s.data.step === 'error') {
+                    clearInterval(interval);
+                    throw new Error("Erro na conversão da Convertio.");
                 }
-            } catch (e) { }
+            } catch (e) {
+                clearInterval(interval);
+                status.innerText = "❌ Erro ao processar.";
+                convertBtn.disabled = false;
+            }
         }, 4000);
     }
 
