@@ -134,52 +134,37 @@
         }
     });
 
-   convertBtn.addEventListener('click', async () => {
-    const file = fileInput.files[0];
-    if (!file) return;
+    convertBtn.addEventListener('click', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
 
-    convertBtn.disabled = true;
-    status.style.display = 'block';
-    status.innerText = "🚀 Enviando para o Brasil IA...";
+        convertBtn.disabled = true;
+        status.style.display = 'block';
+        status.style.color = '#003399';
+        status.style.backgroundColor = 'transparent';
+        status.innerText = "🚀 Enviando para o Brasil IA...";
 
-    try {
-        const base64 = await toBase64(file);
-        
-        // AQUI ESTÁ O SEGREDO: Definir a variável 'res' corretamente
-        const res = await fetch('/api/convert', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file: base64, filename: file.name })
-        });
+        try {
+            const base64 = await toBase64(file);
+            
+            const res = await fetch('/api/convert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ file: base64, filename: file.name })
+            });
 
-        // Verificamos 'res', que é o nome que demos acima
-        if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.error || "Erro no servidor");
-        }
+            const data = await res.json();
 
-        const data = await res.json();
-        
-        if (data.status !== 'ok') {
-            throw new Error(data.error || "Erro na conversão");
-        }
+            if (!res.ok) {
+                throw new Error(data.error || "Erro no servidor");
+            }
 
-        checkStatus(data.data.id);
-
-    } catch (e) {
-        // Agora o erro será capturado e mostrado sem travar
-        status.innerText = "❌ " + e.message;
-        convertBtn.disabled = false;
-    }
-});
-            const data = await response.json();
-
-            if (!response.ok) {
-                // Se for erro 413 do Vercel ou erro da API
-                throw new Error(data.error || "O servidor não suportou o tamanho do arquivo.");
+            if (data.status !== 'ok') {
+                throw new Error(data.error || "Erro na conversão");
             }
 
             checkStatus(data.data.id);
+
         } catch (e) {
             status.style.color = '#721c24';
             status.style.backgroundColor = '#f8d7da';
@@ -194,6 +179,7 @@
             try {
                 const res = await fetch(`https://api.convertio.co/convert/${id}/status`);
                 const s = await res.json();
+                
                 if (s.data.step === 'finish') {
                     clearInterval(interval);
                     status.style.display = 'none';
@@ -202,12 +188,11 @@
                     convertBtn.disabled = false;
                 } else if (s.data.step === 'error') {
                     clearInterval(interval);
-                    throw new Error("Erro na conversão da Convertio.");
+                    status.innerText = "❌ Ered na conversão.";
+                    convertBtn.disabled = false;
                 }
             } catch (e) {
-                clearInterval(interval);
-                status.innerText = "❌ Erro ao processar.";
-                convertBtn.disabled = false;
+                console.error("Erro ao verificar status:", e);
             }
         }, 4000);
     }
