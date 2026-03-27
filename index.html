@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brasil IA - Conversor MP4 para MP3</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="public/css/style.css">
 </head>
 <body>
 
@@ -14,7 +14,7 @@
     <p>Conversor de Vídeo para Áudio (MP3)</p>
 
     <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-        <span id="fileName">Selecione um vídeo MP4</span>
+        <span id="fileName">Selecione um vídeo MP4 (Máx 4.5MB)</span>
         <input type="file" id="fileInput" accept="video/mp4">
     </div>
 
@@ -54,9 +54,16 @@
         const file = fileInput.files[0];
         if (!file) return;
 
+        // Validação de segurança para o plano Free do Vercel
+        if (file.size > 4.5 * 1024 * 1024) {
+            status.style.display = 'block';
+            status.innerText = "❌ Arquivo muito grande! Máximo de 4.5MB permitido.";
+            return;
+        }
+
         convertBtn.disabled = true;
         status.style.display = 'block';
-        status.innerText = "🚀 Enviando... (Arquivos grandes demoram mais)";
+        status.innerText = "🚀 Enviando para o Brasil IA...";
 
         try {
             const base64 = await toBase64(file);
@@ -66,11 +73,7 @@
                 body: JSON.stringify({ file: base64, filename: file.name })
             });
 
-            if (!response.ok) {
-                const text = await response.text();
-                if (text.includes("Payload Too Large")) throw new Error("Vídeo muito grande para o plano gratuito.");
-                throw new Error("O servidor demorou muito ou falhou.");
-            }
+            if (!response.ok) throw new Error("Erro no servidor. Tente um arquivo menor.");
 
             const data = await response.json();
             if (data.status !== 'ok') throw new Error(data.error || "Erro na conversão");
@@ -83,7 +86,7 @@
     });
 
     async function checkStatus(id) {
-        status.innerText = "⏳ IA Processando... Não feche a página.";
+        status.innerText = "⏳ Processando áudio... Aguarde.";
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`https://api.convertio.co/convert/${id}/status`);
@@ -95,7 +98,7 @@
                     mp3Link.href = s.data.output.url;
                     convertBtn.disabled = false;
                 }
-            } catch (e) { /* continua tentando */ }
+            } catch (e) { }
         }, 4000);
     }
 
