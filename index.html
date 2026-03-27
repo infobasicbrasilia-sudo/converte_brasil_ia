@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brasil IA - Conversor MP4 para MP3</title>
     <style>
-        body { background-color: #f0f2f5; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { background-color: #f0f2f5; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
         .logo-brasil { width: 80px; margin-bottom: 1rem; }
         h1 { color: #003399; margin: 0; }
@@ -16,6 +16,7 @@
         .status-msg { margin-top: 1rem; font-weight: bold; display: none; padding: 10px; border-radius: 5px; }
         #downloadArea { margin-top: 1.5rem; display: none; padding: 1rem; background: #d4edda; border-radius: 8px; }
         .download-link { display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .counter-container { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -30,13 +31,23 @@
         <input type="file" id="fileInput" accept="video/mp4">
     </div>
 
-    <button id="convertBtn" class="btn-convert" disabled>INICIAR CONVERSÃO</button>
+    <button id="convertBtn" class="disabled btn-convert" disabled>INICIAR CONVERSÃO</button>
     <div id="status" class="status-msg"></div>
 
     <div id="downloadArea">
         <p>✅ Conversão concluída!</p>
         <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MP3</a>
     </div>
+    
+    <div style="margin-top: 20px; font-size: 0.8rem; color: #999;">
+        Devs: Alunos de Informática Básica - Joner 2026
+    </div>
+</div>
+
+<div class="counter-container">
+    <a href='https://www.counter12.com'>
+        <img src='https://www.counter12.com/img-8xW6aD0D8x90Z669-3.gif' border='0' alt='contador de visitas'>
+    </a>
 </div>
 
 <script>
@@ -47,7 +58,6 @@
     const downloadArea = document.getElementById('downloadArea');
     const mp3Link = document.getElementById('mp3Link');
 
-    // 1. Detectar quando o arquivo é escolhido
     fileInput.onchange = function() {
         if (this.files[0]) {
             fileName.innerText = "Arquivo: " + this.files[0].name;
@@ -55,7 +65,6 @@
         }
     };
 
-    // 2. Transformar em Base64
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -63,7 +72,6 @@
         reader.onerror = error => reject(error);
     });
 
-    // 3. Verificar Status na Convertio
     async function checkStatus(id) {
         status.innerText = "⏳ IA Processando... Aguarde.";
         const interval = setInterval(async () => {
@@ -81,13 +89,14 @@
         }, 4000);
     }
 
-    // 4. Ação do Botão
     convertBtn.onclick = async function() {
         const file = fileInput.files[0];
         if (!file) return;
 
         convertBtn.disabled = true;
         status.style.display = 'block';
+        status.style.backgroundColor = "transparent";
+        status.style.color = "#003399";
         status.innerText = "🚀 Enviando...";
 
         try {
@@ -98,6 +107,14 @@
                 body: JSON.stringify({ file: base64, filename: file.name })
             });
 
+            // Proteção contra o erro "Token R" (Texto em vez de JSON)
+            if (res.status === 413) throw new Error("Vídeo muito grande (Máx 4.5MB)");
+            
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("O servidor respondeu de forma inválida.");
+            }
+
             const data = await res.json();
             if (data.status === 'ok') {
                 checkStatus(data.data.id);
@@ -105,6 +122,8 @@
                 throw new Error(data.error || "Erro na conversão");
             }
         } catch (e) {
+            status.style.backgroundColor = "#f8d7da";
+            status.style.color = "#721c24";
             status.innerText = "❌ " + e.message;
             convertBtn.disabled = false;
         }
