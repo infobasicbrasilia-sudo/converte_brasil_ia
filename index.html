@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brasil IA - Conversor MP4 para MP3</title>
-    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <link rel="stylesheet" href="css/style.css?v=4.0">
 </head>
 <body>
 
@@ -21,7 +21,7 @@
     <button id="convertBtn" class="btn-convert" disabled>INICIAR CONVERSÃO</button>
     <div id="status" class="status-msg"></div>
 
-    <div id="downloadArea">
+    <div id="downloadArea" style="display: none;">
         <p style="color: #155724;">✅ Conversão concluída!</p>
         <a id="mp3Link" href="#" class="download-link" target="_blank">BAIXAR MP3</a>
     </div>
@@ -43,7 +43,8 @@
 
     fileInput.addEventListener('change', function() {
         if (this.files[0]) {
-            fileName.innerText = "Arquivo: " + this.files[0].name;
+            const sizeMB = (this.files[0].size / (1024 * 1024)).toFixed(2);
+            fileName.innerText = `Arquivo: ${this.files[0].name} (${sizeMB}MB)`;
             convertBtn.disabled = false;
             status.style.display = 'none';
             downloadArea.style.display = 'none';
@@ -54,16 +55,20 @@
         const file = fileInput.files[0];
         if (!file) return;
 
-        // Validação de segurança para o plano Free do Vercel
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
+        // Validação de segurança para o plano Free do Vercel (4.5MB real)
         if (file.size > 4.5 * 1024 * 1024) {
             status.style.display = 'block';
-            status.innerText = "❌ Arquivo muito grande! Máximo de 4.5MB permitido.";
+            status.innerHTML = `❌ Arquivo muito grande (${fileSizeMB}MB).<br>O limite gratuito é 4.5MB (Vídeos curtos).`;
+            status.style.color = "#721c24";
             return;
         }
 
         convertBtn.disabled = true;
         status.style.display = 'block';
-        status.innerText = "🚀 Enviando para o Brasil IA...";
+        status.style.color = "#333";
+        status.innerText = `🚀 Enviando ${fileSizeMB}MB para o Brasil IA...`;
 
         try {
             const base64 = await toBase64(file);
@@ -73,7 +78,7 @@
                 body: JSON.stringify({ file: base64, filename: file.name })
             });
 
-            if (!response.ok) throw new Error("Erro no servidor. Tente um arquivo menor.");
+            if (!response.ok) throw new Error("Erro no servidor. Tente um vídeo mais curto.");
 
             const data = await response.json();
             if (data.status !== 'ok') throw new Error(data.error || "Erro na conversão");
@@ -86,7 +91,7 @@
     });
 
     async function checkStatus(id) {
-        status.innerText = "⏳ Processando áudio... Aguarde.";
+        status.innerText = "⏳ IA Processando... Isso pode levar 1 ou 2 minutos.";
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`https://api.convertio.co/convert/${id}/status`);
