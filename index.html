@@ -134,25 +134,44 @@
         }
     });
 
-    convertBtn.addEventListener('click', async () => {
-        const file = fileInput.files[0];
-        if (!file) return;
+   convertBtn.addEventListener('click', async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
 
-        convertBtn.disabled = true;
-        status.style.display = 'block';
-        status.style.color = '#003399';
-        status.style.backgroundColor = '#eef2ff';
-        status.innerText = "🚀 Enviando para o Brasil IA... (Aguarde)";
+    convertBtn.disabled = true;
+    status.style.display = 'block';
+    status.innerText = "🚀 Enviando para o Brasil IA...";
 
-        try {
-            const toBase64 = file => new Promise((r, j) => {
-    const reader = new FileReader();
-    // Isso lê o arquivo e transforma em uma string pura
-    reader.readAsDataURL(file);
-    reader.onload = () => r(reader.result.split(',')[1]); // Pega só o código, remove o "data:video..."
-    reader.onerror = j;
+    try {
+        const base64 = await toBase64(file);
+        
+        // AQUI ESTÁ O SEGREDO: Definir a variável 'res' corretamente
+        const res = await fetch('/api/convert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file: base64, filename: file.name })
+        });
+
+        // Verificamos 'res', que é o nome que demos acima
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || "Erro no servidor");
+        }
+
+        const data = await res.json();
+        
+        if (data.status !== 'ok') {
+            throw new Error(data.error || "Erro na conversão");
+        }
+
+        checkStatus(data.data.id);
+
+    } catch (e) {
+        // Agora o erro será capturado e mostrado sem travar
+        status.innerText = "❌ " + e.message;
+        convertBtn.disabled = false;
+    }
 });
-
             const data = await response.json();
 
             if (!response.ok) {
