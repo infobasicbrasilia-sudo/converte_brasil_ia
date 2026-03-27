@@ -145,12 +145,13 @@
         status.innerText = "🚀 Enviando para o Brasil IA... (Aguarde)";
 
         try {
-            const base64 = await toBase64(file);
-            const response = await fetch('/api/convert', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ file: base64, filename: file.name })
-            });
+            const toBase64 = file => new Promise((r, j) => {
+    const reader = new FileReader();
+    // Isso lê o arquivo e transforma em uma string pura
+    reader.readAsDataURL(file);
+    reader.onload = () => r(reader.result.split(',')[1]); // Pega só o código, remove o "data:video..."
+    reader.onerror = j;
+});
 
             const data = await response.json();
 

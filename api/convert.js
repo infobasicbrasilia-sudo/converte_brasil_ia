@@ -1,26 +1,11 @@
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '10mb', 
-        },
-    },
-};
-
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Método não permitido' });
-    }
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
     const API_KEY = process.env.CONVERTIO_KEY;
-
-    if (!API_KEY) {
-        return res.status(500).json({ error: "Chave de API não configurada no Vercel." });
-    }
-
     const { file, filename } = req.body;
 
-    if (!file) {
-        return res.status(400).json({ error: "Arquivo não recebido corretamente." });
+    if (!file || !API_KEY) {
+        return res.status(400).json({ error: "Configuração ou arquivo ausente." });
     }
 
     try {
@@ -37,14 +22,8 @@ export default async function handler(req, res) {
         });
 
         const data = await response.json();
-        
-        if (data.status !== 'ok') {
-            return res.status(400).json({ error: data.error || "Erro na Convertio." });
-        }
-
         return res.status(200).json(data);
-
     } catch (error) {
-        return res.status(500).json({ error: 'Erro de conexão no servidor.' });
+        return res.status(500).json({ error: "Erro interno: " + error.message });
     }
 }
