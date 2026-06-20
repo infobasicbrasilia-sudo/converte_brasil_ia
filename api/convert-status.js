@@ -1,8 +1,6 @@
 export default async function handler(req, res) {
-    // ✅ AQUI é onde a API_KEY deve estar!
+    // ✅ AQUI também!
     const API_KEY = process.env.CONVERTIO_KEY;
-    
-    console.log('🔑 API_KEY existe?', !!API_KEY);
     
     if (!API_KEY) {
         return res.status(500).json({ 

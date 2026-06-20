@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disruptivs - Conversor MP4 para MP3</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+        h1 { color: #003399; margin: 0; font-size: 28px; }
+        .subtitle { color: #666; margin: 10px 0 25px 0; }
+        
+        /* Estilo do botão de upload personalizado */
+        .upload-area {
+            border: 3px dashed #003399;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            background: #eef2ff;
+            border-color: #002266;
+        }
+        .upload-area.dragover {
+            background: #dce3f5;
+            border-color: #001a4d;
+        }
+        .upload-area .icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .upload-area p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .upload-area .filename {
+            font-weight: bold;
+            color: #003399;
+            word-break: break-all;
+        }
+        
+        /* Botão de upload alternativo */
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .upload-btn-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .upload-btn-wrapper .btn-upload {
+            background: #003399;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .upload-btn-wrapper .btn-upload:hover {
+            background: #002266;
+            transform: translateY(-2px);
+        }
+        
+        .btn-convert {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn-convert:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        .btn-convert:disabled { 
+            background: #ccc; 
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .status-msg {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            font-weight: bold;
+        }
+        .status-msg.error { display: block; background: #f8d7da; color: #721c24; }
+        .status-msg.info { display: block; background: #eef2ff; color: #003399; }
+        .status-msg.success { display: block; background: #d4edda; color: #155724; }
+        
+        #downloadArea {
+            margin-top: 20px;
+            display: none;
+            padding: 20px;
+            background: #d4edda;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+        }
+        .download-link {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .download-link:hover { background: #218838; transform: translateY(-2px); }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #003399;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .footer { margin-top: 25px; font-size: 12px; color: #999; }
+        
+        .file-info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 8px;
+            display: none;
+        }
+        .file-info .label { font-weight: bold; color: #003399; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎵 MP4 para MP3</h1>
+    <p class="subtitle">Conversor de Vídeo para Áudio</p>
+
+    <!-- ÁREA DE UPLOAD -->
+    <div class="upload-area" id="dropZone">
+        <span class="icon">📁</span>
+        <p><strong>Clique ou arraste um arquivo</strong></p>
+        <p style="font-size: 14px; color: #999;">MP4, AVI, MOV, etc.</p>
+        <div class="upload-btn-wrapper">
+            <button class="btn-upload" id="customUploadBtn">📤 Escolher Arquivo</button>
+            <input type="file" id="fileInput" accept="video/*">
+        </div>
+    </div>
+
+    <!-- INFORMAÇÕES DO ARQUIVO -->
+    <div class="file-info" id="fileInfo">
+        <span class="label">📄 Arquivo selecionado:</span>
+        <span id="fileName">Nenhum</span>
+    </div>
+
+    <button id="convertBtn" class="btn-convert" disabled>🔄 INICIAR CONVERSÃO</button>
+    <div id="status" class="status-msg"></div>
+
+    <div id="downloadArea">
+        <p style="margin: 0; font-weight: bold;">✅ Conversão Concluída!</p>
+        <a id="mp3Link" href="#" class="download-link" target="_blank">🎵 BAIXAR MP3</a>
+    </div>
+    
+    <div class="footer">
+        <b>Instrutor Joner & Alunos 2026</b>
+    </div>
+</div>
+
+<script>
+// ⚠️ NENHUMA REFERÊNCIA A API_KEY AQUI!
+// A chave está SEGURA no backend!
+
+(function() {
+    'use strict';
+    
+    console.log('🚀 Aplicação iniciada - API Key protegida no servidor');
+
+    // Elementos
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const fileInfo = document.getElementById('fileInfo');
+    const convertBtn = document.getElementById('convertBtn');
+    const statusDiv = document.getElementById('status');
+    const downloadArea = document.getElementById('downloadArea');
+    const mp3Link = document.getElementById('mp3Link');
+    const dropZone = document.getElementById('dropZone');
+    const customUploadBtn = document.getElementById('customUploadBtn');
+
+    // ✅ FUNÇÃO PARA ABRIR O FILE INPUT
+    function openFileSelector() {
+        console.log('📂 Abrindo seletor de arquivos...');
+        fileInput.click();
+    }
+
+    // ✅ Clique no botão personalizado
+    if (customUploadBtn) {
+        customUploadBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openFileSelector();
+        });
+    }
+
+    // ✅ Clique na área de drop
+    if (dropZone) {
+        dropZone.addEventListener('click', function(e) {
+            // Não abrir se clicou no botão
+            if (e.target.closest('.upload-btn-wrapper')) return;
+            openFileSelector();
+        });
+    }
+
+    // ✅ Drag and Drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            console.log('📁 Arquivo arrastado:', e.dataTransfer.files[0].name);
+            fileInput.files = e.dataTransfer.files;
+            // Disparar o evento change
+            if (typeof Event === 'function') {
+                fileInput.dispatchEvent(new Event('change'));
+            } else {
+                // Fallback para navegadores antigos
+                fileInput.onchange.call(fileInput);
+            }
+        }
+    });
+
+    // ✅ Evento de mudança do arquivo
+    fileInput.onchange = function() {
+        console.log('📄 Evento change disparado');
+        console.log('📄 Arquivos:', this.files);
+        
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const size = (file.size / (1024 * 1024)).toFixed(2);
+            console.log('📄 Arquivo selecionado:', file.name, `(${size}MB)`);
+            
+            // Mostrar informações
+            fileName.textContent = `${file.name} (${size}MB)`;
+            fileInfo.style.display = 'block';
+            convertBtn.disabled = false;
+            
+            // Resetar status
+            statusDiv.className = 'status-msg';
+            statusDiv.style.display = 'none';
+            downloadArea.style.display = 'none';
+            
+        } else {
+            console.log('⚠️ Nenhum arquivo selecionado');
+            fileInfo.style.display = 'none';
+            convertBtn.disabled = true;
+        }
+    };
+
+    // ✅ Fallback: Tentar abrir o seletor de arquivos de outras formas
+    // Alguns navegadores bloqueiam o click programático, então tentamos novamente
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 DOM carregado');
+        
+        // Verificar se o fileInput está funcionando
+        if (!fileInput) {
+            console.error('❌ Elemento fileInput não encontrado!');
+        } else {
+            console.log('✅ fileInput encontrado');
+        }
+    });
+
+    // ✅ Teste rápido - Tentar abrir via botão
+    console.log('💡 Dica: Clique no botão "Escolher Arquivo" para selecionar um vídeo');
+
+    // ============================================
+    // FUNÇÕES DE CONVERSÃO
+    // ============================================
+
+    const toBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            console.log('🔄 Convertendo para base64...');
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                console.log('✅ Base64 gerado com sucesso');
+                resolve(base64);
+            };
+            reader.onerror = (error) => {
+                console.error('❌ Erro na conversão:', error);
+                reject(error);
+            };
+        });
+    };
+
+    function setStatus(message, type = 'info') {
+        statusDiv.className = `status-msg ${type}`;
+        statusDiv.innerHTML = message;
+        statusDiv.style.display = 'block';
+    }
+
+    async function checkStatus(id) {
+        console.log('🔍 Verificando status:', id);
+        setStatus('<span class="loader"></span> Processando...', 'info');
+
+        let attempts = 0;
+        const maxAttempts = 30;
+
+        const interval = setInterval(async () => {
+            attempts++;
+            try {
+                console.log(`📡 Verificando (${attempts}/${maxAttempts})...`);
+                
+                const res = await fetch(`/api/convert-status?id=${id}`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || `Erro ${res.status}`);
+                }
+
+                if (data.status === 'ok' && data.data) {
+                    console.log('📌 Status:', data.data.step);
+                    
+                    if (data.data.step === 'finish' && data.data.output?.url) {
+                        console.log('✅ Conversão concluída!');
+                        clearInterval(interval);
+                        statusDiv.style.display = 'none';
+                        downloadArea.style.display = 'block';
+                        mp3Link.href = data.data.output.url;
+                        convertBtn.disabled = false;
+                        return;
+                    } else if (data.data.step === 'error') {
+                        throw new Error(data.data.error || 'Erro na conversão');
+                    }
+                }
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    throw new Error('Tempo limite excedido');
+                }
+
+            } catch (e) {
+                clearInterval(interval);
+                console.error('❌ Erro:', e.message);
+                setStatus('❌ ' + e.message, 'error');
+                convertBtn.disabled = false;
+            }
+        }, 4000);
+    }
+
+    // ✅ Botão de conversão
+    convertBtn.onclick = async function() {
+        const file = fileInput.files[0];
+        if (!file) {
+            setStatus('⚠️ Selecione um arquivo primeiro!', 'error');
+            return;
+        }
+
+        convertBtn.disabled = true;
+        setStatus('<span class="loader"></span> Enviando...', 'info');
+
+        try {
+            console.log('📤 Convertendo arquivo...');
+            const base64 = await toBase64(file);
+
+            console.log('📤 Enviando para /api/convert...');
+            const res = await fetch('/api/convert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    file: base64,
+                    filename: file.name
+                })
+            });
+
+            const data = await res.json();
+            console.log('📨 Resposta:', data);
+
+            if (!res.ok) {
+                throw new Error(data.error || `Erro ${res.status}`);
+            }
+
+            if (data.status === 'ok' && data.data?.id) {
+                await checkStatus(data.data.id);
+            } else {
+                throw new Error(data.error || 'Erro na conversão');
+            }
+
+        } catch (e) {
+            console.error('❌ Erro:', e);
+            setStatus('❌ ' + e.message, 'error');
+            convertBtn.disabled = false;
+        }
+    };
+
+    console.log('✅ App carregado com sucesso!');
+    console.log('🔒 API Key protegida no servidor');
+    console.log('📍 POST /api/convert');
+    console.log('📍 GET  /api/convert-status?id=ID');
+
+})();
+</script>
+</body>
+</html>
