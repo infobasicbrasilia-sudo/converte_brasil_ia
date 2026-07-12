@@ -1,26 +1,33 @@
-# Dependências
-node_modules/
-.vercel/
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-# Arquivos de ambiente
-.env
-.env.local
-.env.*.local
+# testing
+/coverage
 
-# Logs
-*.log
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Sistemas operacionais
-.DS_Store
-Thumbs.db
+# local env files
+.env*.local
 
-# VS Code
-.vscode/
-*.code-workspace
+# vercel
+.vercel
 
-# Arquivos temporários
-*.tmp
-*.temp
+# typescript
+*.tsbuildinfo
+next-env.d.ts
